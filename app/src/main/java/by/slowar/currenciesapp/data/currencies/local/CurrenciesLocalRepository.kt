@@ -13,7 +13,7 @@ interface CurrenciesLocalRepository {
 
     suspend fun getFavouriteCurrencies(): List<CurrencyAndMetadata>
 
-    suspend fun changeFavouriteCurrency(symbol: String, isFavourite: Boolean)
+    suspend fun changeFavouriteCurrency(symbol: String, isFavourite: Boolean): CurrencyAndMetadata?
 
     suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity?
 }
@@ -34,11 +34,15 @@ class CurrenciesLocalRepositoryImpl @Inject constructor(
         return currenciesLocalDataSource.getFavouriteCurrencies()
     }
 
-    override suspend fun changeFavouriteCurrency(symbol: String, isFavourite: Boolean) {
+    override suspend fun changeFavouriteCurrency(
+        symbol: String,
+        isFavourite: Boolean
+    ): CurrencyAndMetadata? {
         val metadata = currenciesLocalDataSource.getMetadataBySymbol(symbol)
         val newMetadata = metadata?.copy(isFavourite = isFavourite)
             ?: CurrencyMetadataEntity(symbol = symbol, isFavourite = isFavourite)
         currenciesLocalDataSource.insertMetadata(newMetadata)
+        return currenciesLocalDataSource.getCurrencyBySymbol(symbol)
     }
 
     override suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity? {

@@ -12,5 +12,6 @@ class CurrenciesActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityCurrenciesBinding.inflate(layoutInflater)
         setContentView(binding.root)
+        setSupportActionBar(binding.toolbar)
     }
 }

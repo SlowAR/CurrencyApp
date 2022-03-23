@@ -16,16 +16,22 @@ interface CurrenciesDao {
     suspend fun getAllCurrencies(): List<CurrencyAndMetadata>
 
     @Transaction
-    @Query("SELECT * FROM ${CurrencyEntity.TABLE_NAME} " +
-            "INNER JOIN ${CurrencyMetadataEntity.TABLE_NAME} " +
-            "ON ${CurrencyEntity.TABLE_NAME}.${CurrencyEntity.SYMBOL} = ${CurrencyMetadataEntity.TABLE_NAME}.${CurrencyMetadataEntity.SYMBOL} " +
-            "WHERE ${CurrencyMetadataEntity.IS_FAVOURITE}=1")
+    @Query(
+        "SELECT * FROM ${CurrencyEntity.TABLE_NAME} " +
+                "INNER JOIN ${CurrencyMetadataEntity.TABLE_NAME} " +
+                "ON ${CurrencyEntity.TABLE_NAME}.${CurrencyEntity.SYMBOL} = ${CurrencyMetadataEntity.TABLE_NAME}.${CurrencyMetadataEntity.SYMBOL} " +
+                "WHERE ${CurrencyMetadataEntity.IS_FAVOURITE}=1"
+    )
     suspend fun getFavouriteCurrencies(): List<CurrencyAndMetadata>
 
     @Transaction
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMetadata(currencyMetadataEntity: CurrencyMetadataEntity)
+    suspend fun insertMetadata(currencyMetadataEntity: CurrencyMetadataEntity): Long
 
     @Query("SELECT * FROM ${CurrencyMetadataEntity.TABLE_NAME} WHERE ${CurrencyMetadataEntity.SYMBOL}=:symbol")
     suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity?
+
+    @Transaction
+    @Query("SELECT * FROM ${CurrencyEntity.TABLE_NAME} WHERE ${CurrencyEntity.SYMBOL}=:symbol")
+    suspend fun getCurrencyBySymbol(symbol: String): CurrencyAndMetadata?
 }

@@ -13,7 +13,9 @@ interface CurrenciesLocalDataSource {
 
     suspend fun getFavouriteCurrencies(): List<CurrencyAndMetadata>
 
-    suspend fun insertMetadata(currencyMetadataEntity: CurrencyMetadataEntity)
+    suspend fun insertMetadata(currencyMetadataEntity: CurrencyMetadataEntity): Long
+
+    suspend fun getCurrencyBySymbol(symbol: String): CurrencyAndMetadata?
 
     suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity?
 }
@@ -34,8 +36,12 @@ class CurrenciesLocalDataSourceImpl @Inject constructor(
         return currenciesDao.getFavouriteCurrencies()
     }
 
-    override suspend fun insertMetadata(currencyMetadataEntity: CurrencyMetadataEntity) {
-        currenciesDao.insertMetadata(currencyMetadataEntity)
+    override suspend fun insertMetadata(currencyMetadataEntity: CurrencyMetadataEntity): Long {
+        return currenciesDao.insertMetadata(currencyMetadataEntity)
+    }
+
+    override suspend fun getCurrencyBySymbol(symbol: String): CurrencyAndMetadata? {
+        return currenciesDao.getCurrencyBySymbol(symbol)
     }
 
     override suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity? {
