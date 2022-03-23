@@ -6,7 +6,7 @@ import by.slowar.currenciesapp.di.app.DaggerAppComponent
 
 class CurrenciesApp : Application() {
 
-    private lateinit var appComponent: AppComponent
+    lateinit var appComponent: AppComponent
 
     override fun onCreate() {
         super.onCreate()
