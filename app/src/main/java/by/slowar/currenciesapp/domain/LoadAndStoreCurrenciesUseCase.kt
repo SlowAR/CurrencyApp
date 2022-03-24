@@ -16,11 +16,14 @@ class LoadAndStoreCurrenciesUseCase @Inject constructor(
 
     suspend fun execute(
         baseCurrency: String,
-        symbols: String = ""
+        symbols: String = "",
+        forceRefresh: Boolean = true
     ): Result<List<CurrencyItem>, Throwable> {
-        currenciesRemoteRepository.getLatestCurrencies(baseCurrency, symbols)
-            .mapSuccess { dtoList -> dtoList.map { it.toEntity() } }
-            .doOnSuccess { entities -> currenciesLocalRepository.insertAll(entities) }
+        if(forceRefresh) {
+            currenciesRemoteRepository.getLatestCurrencies(baseCurrency, symbols)
+                .mapSuccess { dtoList -> dtoList.map { it.toEntity() } }
+                .doOnSuccess { entities -> currenciesLocalRepository.insertAll(entities) }
+        }
 
         return currenciesLocalRepository.getAllCurrencies().mapSuccess { dtoList ->
             dtoList.map { it.toModel() }

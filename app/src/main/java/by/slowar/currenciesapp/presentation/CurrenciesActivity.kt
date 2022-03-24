@@ -18,14 +18,17 @@ class CurrenciesActivity : AppCompatActivity() {
 
         setSupportActionBar(binding.toolbar)
 
+        val allCurrenciesFragment = CurrenciesListFragment.newInstance()
+        val favouriteCurrenciesFragment = CurrenciesListFragment.newInstance(true)
+
         binding.bottomNavigation.setOnItemSelectedListener { item ->
             when (item.itemId) {
                 R.id.currenciesListItem -> {
-                    switchFragment(CurrenciesListFragment.newInstance())
+                    switchFragment(allCurrenciesFragment)
                     true
                 }
                 R.id.favouritesCurrenciesItem -> {
-                    switchFragment(CurrenciesListFragment.newInstance(true))
+                    switchFragment(favouriteCurrenciesFragment)
                     true
                 }
                 else -> false

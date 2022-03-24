@@ -1,7 +1,7 @@
 <resources>
     <string name="app_name">CurrenciesApp</string>
     <string name="favourites">Favourites</string>
-    <string name="ok_word">Ok</string>
+    <string name="ok_word">OK</string>
     <string name="favourite_error">Changing favourite currency state occurred!</string>
     <string name="sort">Sort</string>
     <string name="all">All</string>

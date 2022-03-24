@@ -34,13 +34,23 @@ class CurrenciesListViewModel(
     val favouriteCurrencyChangeResult: StateFlow<FavouriteCurrencyResult> =
         _favouriteCurrencyChangeResult
 
-    fun getLatestCurrencyRates(baseCurrency: String, symbols: List<String> = emptyList()) {
+    var lastBaseCurrency: String = ""
+        set(value) {
+            getLatestCurrencyRates(field, forceRefresh = field != value)
+            field = value
+        }
+
+    private fun getLatestCurrencyRates(
+        baseCurrency: String,
+        symbols: List<String> = emptyList(),
+        forceRefresh: Boolean = true
+    ) {
         viewModelScope.launch {
             _currenciesListResult.value = CurrenciesListResult.Loading
 
             val currenciesRequest = async(Dispatchers.IO) {
                 val symbolsString = symbols.joinToString(separator = ",")
-                loadAndStoreCurrenciesUseCase.execute(baseCurrency, symbolsString)
+                loadAndStoreCurrenciesUseCase.execute(baseCurrency, symbolsString, forceRefresh)
             }
 
             when (val currenciesResponse = currenciesRequest.await()) {
@@ -59,9 +69,12 @@ class CurrenciesListViewModel(
             }
 
             when (val currenciesResponse = currenciesRequest.await()) {
-                is Result.Error -> handleCurrenciesResultError(currenciesResponse.error)
+                is Result.Error -> {
+                    val errorText = currenciesResponse.error.localizedMessage
+                    _favouriteCurrenciesResult.value = CurrenciesListResult.Error(errorText)
+                }
                 is Result.Success -> {
-                    _currenciesListResult.value = CurrenciesListResult.Success(
+                    _favouriteCurrenciesResult.value = CurrenciesListResult.Success(
                         currenciesResponse.result.map { currency ->
                             currency.toUiState(::changeFavouriteCurrency)
                         }

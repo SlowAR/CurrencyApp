@@ -23,7 +23,7 @@ class CurrenciesRemoteDataSourceImpl @Inject constructor(
 
     override suspend fun getLatestCurrencies(baseCurrency: String): Result<List<CurrencyRateDto>, Throwable> {
         return executeCatching {
-            currenciesApi.getLatestCurrencies(baseCurrency).rates
+            currenciesApi.getLatestCurrencies(baseCurrency).rates!!
         }
     }
 
@@ -32,7 +32,7 @@ class CurrenciesRemoteDataSourceImpl @Inject constructor(
         symbols: String
     ): Result<List<CurrencyRateDto>, Throwable> {
         return executeCatching {
-            currenciesApi.getLatestCurrencies(baseCurrency, symbols).rates
+            currenciesApi.getLatestCurrencies(baseCurrency, symbols).rates!!
         }
     }
 }

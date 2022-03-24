@@ -8,14 +8,14 @@ data class LatestCurrenciesDto(
     val success: Boolean,
 
     @SerializedName("timestamp")
-    val timestamp: Int,
+    val timestamp: Int?,
 
     @SerializedName("base")
-    val base: String,
+    val base: String?,
 
     @SerializedName("date")
-    val date: String,
+    val date: String?,
 
     @SerializedName("rates")
-    val rates: List<CurrencyRateDto>
+    val rates: List<CurrencyRateDto>?
 )

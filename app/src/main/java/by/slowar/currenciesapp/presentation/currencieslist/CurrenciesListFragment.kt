@@ -7,11 +7,11 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
 import androidx.fragment.app.activityViewModels
-import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import by.slowar.currenciesapp.CurrenciesApp
+import by.slowar.currenciesapp.R
 import by.slowar.currenciesapp.databinding.FragmentCurrenciesListBinding
 import by.slowar.currenciesapp.presentation.currencieslist.dialog.CurrenciesDialogFragment
 import by.slowar.currenciesapp.presentation.currencieslist.favourite.FavouriteCurrencyResult
@@ -34,6 +34,8 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
 
     private lateinit var currenciesAdapter: CurrenciesListAdapter
 
+    private var showOnlyFavourites: Boolean = false
+
     override fun onAttach(context: Context) {
         super.onAttach(context)
         (requireActivity().applicationContext as CurrenciesApp).appComponent
@@ -52,12 +54,19 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        showOnlyFavourites = arguments?.getBoolean(ONLY_FAVOURITES, false) ?: false
+
         currenciesAdapter = CurrenciesListAdapter()
         binding.currenciesRecyclerView.setHasFixedSize(true)
         binding.currenciesRecyclerView.adapter = currenciesAdapter
         binding.baseCurrencyText.text = "EUR"
 
-        val showOnlyFavourites = arguments?.getBoolean(ONLY_FAVOURITES, false) ?: false
+        binding.swipeRefreshLayout.setOnRefreshListener {
+            refreshCurrencies()
+        }
+
+        val titleId = if (showOnlyFavourites) R.string.favourites else R.string.currencies_list
+        binding.currenciesListTitle.setText(titleId)
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
@@ -74,14 +83,20 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
         }
 
         binding.baseCurrencyText.setOnClickListener {
-            CurrenciesDialogFragment.newInstance()
-                .show(childFragmentManager, CurrenciesDialogFragment.DIALOG_TAG)
+            if (!showOnlyFavourites) {
+                CurrenciesDialogFragment.newInstance()
+                    .show(childFragmentManager, CurrenciesDialogFragment.DIALOG_TAG)
+            }
         }
 
+        refreshCurrencies()
+    }
+
+    private fun refreshCurrencies() {
         if (showOnlyFavourites) {
             currenciesViewModel.getFavouriteCurrencies()
         } else {
-            currenciesViewModel.getLatestCurrencyRates(binding.baseCurrencyText.text.toString())
+            currenciesViewModel.lastBaseCurrency = binding.baseCurrencyText.text.toString()
         }
     }
 
@@ -111,7 +126,7 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
             FavouriteCurrencyResult.Idle -> {}
             FavouriteCurrencyResult.Changing -> {}
             is FavouriteCurrencyResult.Success -> {
-                currenciesAdapter.changeItemState(result.newItemUiState)
+                currenciesAdapter.changeItemState(result.newItemUiState, showOnlyFavourites)
             }
             is FavouriteCurrencyResult.Error -> {
                 if (!result.error.isNullOrBlank()) {
@@ -123,7 +138,7 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
 
     override fun onCurrencyItemClick(symbol: String) {
         binding.baseCurrencyText.text = symbol
-        currenciesViewModel.getLatestCurrencyRates(symbol)
+        currenciesViewModel.lastBaseCurrency = symbol
     }
 
     override fun onDestroyView() {

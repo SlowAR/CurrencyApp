@@ -46,12 +46,18 @@ class CurrenciesListAdapter(private var itemsStates: MutableList<CurrencyItemUiS
         notifyDataSetChanged()
     }
 
-    fun changeItemState(newItemUiState: CurrencyItemUiState) {
+    fun changeItemState(newItemUiState: CurrencyItemUiState, removeFavourite: Boolean = false) {
         val index = itemsStates.indexOfFirst { it.symbol == newItemUiState.symbol }
-        if (index != -1) {
-            itemsStates[index] = newItemUiState
-            notifyItemChanged(index, FAVOURITE_CURRENCY_PAYLOAD)
+        if (index == -1) return
+
+        if (removeFavourite && !newItemUiState.isFavourite) {
+            itemsStates.removeAt(index)
+            notifyItemRemoved(index)
+            return
         }
+
+        itemsStates[index] = newItemUiState
+        notifyItemChanged(index, FAVOURITE_CURRENCY_PAYLOAD)
     }
 
     override fun getItemCount() = itemsStates.size

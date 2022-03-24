@@ -12,8 +12,7 @@ import androidx.room.PrimaryKey
         ForeignKey(
             entity = CurrencyEntity::class,
             parentColumns = [CurrencyEntity.SYMBOL],
-            childColumns = [CurrencyMetadataEntity.SYMBOL],
-            onDelete = CASCADE
+            childColumns = [CurrencyMetadataEntity.SYMBOL]
         )
     ]
 )
