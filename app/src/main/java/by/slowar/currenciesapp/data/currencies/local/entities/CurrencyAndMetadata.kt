@@ -9,5 +9,5 @@ data class CurrencyAndMetadata(
     val currency: CurrencyEntity,
 
     @Relation(parentColumn = CurrencyEntity.SYMBOL, entityColumn = CurrencyMetadataEntity.SYMBOL)
-    val metadata: CurrencyMetadataEntity
+    val metadata: CurrencyMetadataEntity?
 )

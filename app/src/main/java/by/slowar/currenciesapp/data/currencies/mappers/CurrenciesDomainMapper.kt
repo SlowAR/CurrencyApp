@@ -6,5 +6,5 @@ import by.slowar.currenciesapp.domain.CurrencyItem
 fun CurrencyAndMetadata.toModel() = CurrencyItem(
     symbol = this.currency.symbol,
     rate = this.currency.rate,
-    isFavourite = this.metadata.isFavourite
+    isFavourite = this.metadata?.isFavourite ?: false
 )

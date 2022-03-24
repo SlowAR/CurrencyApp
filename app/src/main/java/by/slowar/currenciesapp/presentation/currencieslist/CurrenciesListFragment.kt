@@ -6,6 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.fragment.app.activityViewModels
 import androidx.fragment.app.viewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
@@ -27,7 +28,7 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
 
     @Inject
     lateinit var currenciesListViewModelFactory: CurrenciesListViewModelFactory
-    private val currenciesViewModel: CurrenciesListViewModel by viewModels {
+    private val currenciesViewModel: CurrenciesListViewModel by activityViewModels {
         currenciesListViewModelFactory
     }
 
@@ -54,6 +55,7 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
         currenciesAdapter = CurrenciesListAdapter()
         binding.currenciesRecyclerView.setHasFixedSize(true)
         binding.currenciesRecyclerView.adapter = currenciesAdapter
+        binding.baseCurrencyText.text = "EUR"
 
         val showOnlyFavourites = arguments?.getBoolean(ONLY_FAVOURITES, false) ?: false
 

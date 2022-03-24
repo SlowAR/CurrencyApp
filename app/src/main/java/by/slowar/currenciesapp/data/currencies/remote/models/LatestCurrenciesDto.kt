@@ -1,6 +1,5 @@
 package by.slowar.currenciesapp.data.currencies.remote.models
 
-
 import com.google.gson.annotations.SerializedName
 
 data class LatestCurrenciesDto(

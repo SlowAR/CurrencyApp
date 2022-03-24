@@ -16,6 +16,6 @@ fun CurrencyAndMetadata.toUiState(onFavouriteClick: (symbol: String, isFavourite
     CurrencyItemUiState(
         symbol = this.currency.symbol,
         rate = this.currency.rate.toString(),
-        isFavourite = this.metadata.isFavourite,
+        isFavourite = this.metadata?.isFavourite ?: false,
         onFavouriteClick = onFavouriteClick
     )

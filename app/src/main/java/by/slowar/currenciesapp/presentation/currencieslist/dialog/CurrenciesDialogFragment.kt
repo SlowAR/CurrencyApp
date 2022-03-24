@@ -6,7 +6,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.DialogFragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
@@ -28,7 +28,7 @@ class CurrenciesDialogFragment : DialogFragment() {
 
     @Inject
     lateinit var currenciesListViewModelFactory: CurrenciesListViewModelFactory
-    private val currenciesViewModel: CurrenciesListViewModel by viewModels {
+    private val currenciesViewModel: CurrenciesListViewModel by activityViewModels {
         currenciesListViewModelFactory
     }
 
@@ -55,8 +55,10 @@ class CurrenciesDialogFragment : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        adapter =
-            CurrenciesDialogAdapter(onItemClickListener = itemClickListener::onCurrencyItemClick)
+        adapter = CurrenciesDialogAdapter() { symbol ->
+            itemClickListener.onCurrencyItemClick(symbol)
+            dismiss()
+        }
         binding.currenciesList.setHasFixedSize(true)
         binding.currenciesList.adapter = adapter
 
