@@ -15,6 +15,7 @@ import by.slowar.currenciesapp.R
 import by.slowar.currenciesapp.databinding.FragmentCurrenciesListBinding
 import by.slowar.currenciesapp.presentation.currencieslist.dialog.CurrenciesDialogFragment
 import by.slowar.currenciesapp.presentation.currencieslist.favourite.FavouriteCurrencyResult
+import by.slowar.currenciesapp.presentation.currencieslist.sort.SortViewModel
 import by.slowar.currenciesapp.utils.ui.showDismissibleSnackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -31,6 +32,8 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
     private val currenciesViewModel: CurrenciesListViewModel by activityViewModels {
         currenciesListViewModelFactory
     }
+
+    private val sortViewModel: SortViewModel by activityViewModels()
 
     private lateinit var currenciesAdapter: CurrenciesListAdapter
 
@@ -86,6 +89,13 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
             if (!showOnlyFavourites) {
                 CurrenciesDialogFragment.newInstance()
                     .show(childFragmentManager, CurrenciesDialogFragment.DIALOG_TAG)
+            }
+        }
+
+        viewLifecycleOwner.lifecycleScope.launch {
+            sortViewModel.sortWayResult.collect { result ->
+                currenciesViewModel.changeSortWay(result)
+                refreshCurrencies()
             }
         }
 

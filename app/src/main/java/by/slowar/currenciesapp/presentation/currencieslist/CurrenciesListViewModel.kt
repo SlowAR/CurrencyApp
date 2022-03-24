@@ -8,6 +8,8 @@ import by.slowar.currenciesapp.data.currencies.mappers.toUiState
 import by.slowar.currenciesapp.domain.CurrencyItem
 import by.slowar.currenciesapp.domain.LoadAndStoreCurrenciesUseCase
 import by.slowar.currenciesapp.presentation.currencieslist.favourite.FavouriteCurrencyResult
+import by.slowar.currenciesapp.presentation.currencieslist.sort.SortWayResult
+import by.slowar.currenciesapp.presentation.currencieslist.sort.SortWayType
 import by.slowar.currenciesapp.utils.Result
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
@@ -39,6 +41,8 @@ class CurrenciesListViewModel(
             getLatestCurrencyRates(field, forceRefresh = field != value)
             field = value
         }
+
+    private var sortWayResult: SortWayResult = SortWayResult.DEFAULT
 
     private fun getLatestCurrencyRates(
         baseCurrency: String,
@@ -74,11 +78,11 @@ class CurrenciesListViewModel(
                     _favouriteCurrenciesResult.value = CurrenciesListResult.Error(errorText)
                 }
                 is Result.Success -> {
-                    _favouriteCurrenciesResult.value = CurrenciesListResult.Success(
-                        currenciesResponse.result.map { currency ->
-                            currency.toUiState(::changeFavouriteCurrency)
-                        }
-                    )
+                    val resultStates = currenciesResponse.result.map { currency ->
+                        currency.toUiState(::changeFavouriteCurrency)
+                    }
+                    val sortedStates = sortCurrenciesUiStates(resultStates)
+                    _favouriteCurrenciesResult.value = CurrenciesListResult.Success(sortedStates)
                 }
             }
         }
@@ -89,11 +93,28 @@ class CurrenciesListViewModel(
     }
 
     private fun handleCurrenciesResultSuccess(result: List<CurrencyItem>) {
-        _currenciesListResult.value = CurrenciesListResult.Success(
-            result.map { currency ->
-                currency.toUiState(::changeFavouriteCurrency)
+        val resultStates = result.map { currency ->
+            currency.toUiState(::changeFavouriteCurrency)
+        }
+        val sortedStates = sortCurrenciesUiStates(resultStates)
+        _currenciesListResult.value = CurrenciesListResult.Success(sortedStates)
+    }
+
+    private fun sortCurrenciesUiStates(states: List<CurrencyItemUiState>): List<CurrencyItemUiState> {
+        var sortedStates = when (sortWayResult.sortWayType) {
+            SortWayType.Alphabetical -> {
+                states.sortedBy { it.symbol }
             }
-        )
+            SortWayType.ByRate -> {
+                states.sortedBy { it.rate }
+            }
+        }
+
+        if (!sortWayResult.isAscending) {
+            sortedStates = sortedStates.reversed()
+        }
+
+        return sortedStates
     }
 
     private fun changeFavouriteCurrency(symbol: String, isFavourite: Boolean) {
@@ -115,6 +136,10 @@ class CurrenciesListViewModel(
                 }
             }
         }
+    }
+
+    fun changeSortWay(sortWayResult: SortWayResult) {
+        this.sortWayResult = sortWayResult
     }
 }
 
