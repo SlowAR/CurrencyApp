@@ -3,7 +3,6 @@ package by.slowar.currenciesapp.presentation.currencieslist
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
-import by.slowar.currenciesapp.R
 import by.slowar.currenciesapp.data.currencies.local.CurrenciesLocalRepository
 import by.slowar.currenciesapp.data.currencies.mappers.toUiState
 import by.slowar.currenciesapp.domain.CurrencyItem
@@ -26,9 +25,14 @@ class CurrenciesListViewModel(
         MutableStateFlow<CurrenciesListResult>(CurrenciesListResult.Idle)
     val currenciesListResult: StateFlow<CurrenciesListResult> = _currenciesListResult
 
-    private val _favouriteCurrencyResult =
+    private val _favouriteCurrenciesResult =
+        MutableStateFlow<CurrenciesListResult>(CurrenciesListResult.Idle)
+    val favouriteCurrenciesResult: StateFlow<CurrenciesListResult> = _favouriteCurrenciesResult
+
+    private val _favouriteCurrencyChangeResult =
         MutableStateFlow<FavouriteCurrencyResult>(FavouriteCurrencyResult.Idle)
-    val favouriteCurrencyResult: StateFlow<FavouriteCurrencyResult> = _favouriteCurrencyResult
+    val favouriteCurrencyChangeResult: StateFlow<FavouriteCurrencyResult> =
+        _favouriteCurrencyChangeResult
 
     fun getLatestCurrencyRates(baseCurrency: String, symbols: List<String> = emptyList()) {
         viewModelScope.launch {
@@ -42,6 +46,27 @@ class CurrenciesListViewModel(
             when (val currenciesResponse = currenciesRequest.await()) {
                 is Result.Error -> handleCurrenciesResultError(currenciesResponse.error)
                 is Result.Success -> handleCurrenciesResultSuccess(currenciesResponse.result)
+            }
+        }
+    }
+
+    fun getFavouriteCurrencies() {
+        viewModelScope.launch {
+            _currenciesListResult.value = CurrenciesListResult.Loading
+
+            val currenciesRequest = async(Dispatchers.IO) {
+                currenciesLocalRepository.getFavouriteCurrencies()
+            }
+
+            when (val currenciesResponse = currenciesRequest.await()) {
+                is Result.Error -> handleCurrenciesResultError(currenciesResponse.error)
+                is Result.Success -> {
+                    _currenciesListResult.value = CurrenciesListResult.Success(
+                        currenciesResponse.result.map { currency ->
+                            currency.toUiState(::changeFavouriteCurrency)
+                        }
+                    )
+                }
             }
         }
     }
@@ -60,18 +85,21 @@ class CurrenciesListViewModel(
 
     private fun changeFavouriteCurrency(symbol: String, isFavourite: Boolean) {
         viewModelScope.launch {
-            _favouriteCurrencyResult.value = FavouriteCurrencyResult.Changing
+            _favouriteCurrencyChangeResult.value = FavouriteCurrencyResult.Changing
 
             val changeRequest = async(Dispatchers.IO) {
                 currenciesLocalRepository.changeFavouriteCurrency(symbol, isFavourite)
             }
 
-            val changeResponse = changeRequest.await()
-            if(changeResponse == null) {
-                _favouriteCurrencyResult.value = FavouriteCurrencyResult.Error(R.string.favourite_error)
-            } else {
-                val uiState = changeResponse.toUiState(::changeFavouriteCurrency)
-                _favouriteCurrencyResult.value = FavouriteCurrencyResult.Success(uiState)
+            when (val changeResponse = changeRequest.await()) {
+                is Result.Error -> FavouriteCurrencyResult.Error(changeResponse.error.localizedMessage)
+                is Result.Success -> {
+                    if (changeResponse.result != null) {
+                        val uiState = changeResponse.result.toUiState(::changeFavouriteCurrency)
+                        _favouriteCurrencyChangeResult.value =
+                            FavouriteCurrencyResult.Success(uiState)
+                    }
+                }
             }
         }
     }

@@ -25,7 +25,7 @@ class CurrenciesActivity : AppCompatActivity() {
                     true
                 }
                 R.id.favouritesCurrenciesItem -> {
-                    //switchFragment(currencyConverterFragment)
+                    switchFragment(CurrenciesListFragment.newInstance(true))
                     true
                 }
                 else -> false

@@ -17,6 +17,7 @@
         android:background="@drawable/base_currency_shape"
         android:gravity="center_vertical"
         android:padding="8dp"
+        android:textAllCaps="true"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
@@ -29,7 +30,7 @@
         android:layout_marginStart="8dp"
         android:layout_marginTop="8dp"
         android:layout_marginEnd="8dp"
-        android:text="Currencies list"
+        android:text="@string/currencies_list"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/baseCurrencyText" />
@@ -54,5 +55,4 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/currency_item" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
-
 </androidx.constraintlayout.widget.ConstraintLayout>

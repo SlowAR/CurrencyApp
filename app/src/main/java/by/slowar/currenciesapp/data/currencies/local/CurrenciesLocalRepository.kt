@@ -3,19 +3,24 @@ package by.slowar.currenciesapp.data.currencies.local
 import by.slowar.currenciesapp.data.currencies.local.entities.CurrencyAndMetadata
 import by.slowar.currenciesapp.data.currencies.local.entities.CurrencyEntity
 import by.slowar.currenciesapp.data.currencies.local.entities.CurrencyMetadataEntity
+import by.slowar.currenciesapp.utils.Result
+import by.slowar.currenciesapp.utils.executeCatching
 import javax.inject.Inject
 
 interface CurrenciesLocalRepository {
 
     suspend fun insertAll(currencies: List<CurrencyEntity>)
 
-    suspend fun getAllCurrencies(): List<CurrencyAndMetadata>
+    suspend fun getAllCurrencies(): Result<List<CurrencyAndMetadata>, Throwable>
 
-    suspend fun getFavouriteCurrencies(): List<CurrencyAndMetadata>
+    suspend fun getFavouriteCurrencies(): Result<List<CurrencyAndMetadata>, Throwable>
 
-    suspend fun changeFavouriteCurrency(symbol: String, isFavourite: Boolean): CurrencyAndMetadata?
+    suspend fun changeFavouriteCurrency(
+        symbol: String,
+        isFavourite: Boolean
+    ): Result<CurrencyAndMetadata?, Throwable>
 
-    suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity?
+    suspend fun getMetadataBySymbol(symbol: String): Result<CurrencyMetadataEntity?, Throwable>
 }
 
 class CurrenciesLocalRepositoryImpl @Inject constructor(
@@ -26,26 +31,34 @@ class CurrenciesLocalRepositoryImpl @Inject constructor(
         currenciesLocalDataSource.insertAll(currencies)
     }
 
-    override suspend fun getAllCurrencies(): List<CurrencyAndMetadata> {
-        return currenciesLocalDataSource.getAllCurrencies()
+    override suspend fun getAllCurrencies(): Result<List<CurrencyAndMetadata>, Throwable> {
+        return executeCatching {
+            currenciesLocalDataSource.getAllCurrencies()
+        }
     }
 
-    override suspend fun getFavouriteCurrencies(): List<CurrencyAndMetadata> {
-        return currenciesLocalDataSource.getFavouriteCurrencies()
+    override suspend fun getFavouriteCurrencies(): Result<List<CurrencyAndMetadata>, Throwable> {
+        return executeCatching {
+            currenciesLocalDataSource.getFavouriteCurrencies()
+        }
     }
 
     override suspend fun changeFavouriteCurrency(
         symbol: String,
         isFavourite: Boolean
-    ): CurrencyAndMetadata? {
-        val metadata = currenciesLocalDataSource.getMetadataBySymbol(symbol)
-        val newMetadata = metadata?.copy(isFavourite = isFavourite)
-            ?: CurrencyMetadataEntity(symbol = symbol, isFavourite = isFavourite)
-        currenciesLocalDataSource.insertMetadata(newMetadata)
-        return currenciesLocalDataSource.getCurrencyBySymbol(symbol)
+    ): Result<CurrencyAndMetadata?, Throwable> {
+        return executeCatching {
+            val metadata = currenciesLocalDataSource.getMetadataBySymbol(symbol)
+            val newMetadata = metadata?.copy(isFavourite = isFavourite)
+                ?: CurrencyMetadataEntity(symbol = symbol, isFavourite = isFavourite)
+            currenciesLocalDataSource.insertMetadata(newMetadata)
+            currenciesLocalDataSource.getCurrencyBySymbol(symbol)
+        }
     }
 
-    override suspend fun getMetadataBySymbol(symbol: String): CurrencyMetadataEntity? {
-        return currenciesLocalDataSource.getMetadataBySymbol(symbol)
+    override suspend fun getMetadataBySymbol(symbol: String): Result<CurrencyMetadataEntity?, Throwable> {
+        return executeCatching {
+            currenciesLocalDataSource.getMetadataBySymbol(symbol)
+        }
     }
 }

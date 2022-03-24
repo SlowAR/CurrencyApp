@@ -55,14 +55,20 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
         binding.currenciesRecyclerView.setHasFixedSize(true)
         binding.currenciesRecyclerView.adapter = currenciesAdapter
 
+        val showOnlyFavourites = arguments?.getBoolean(ONLY_FAVOURITES, false) ?: false
+
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
-                currenciesViewModel.currenciesListResult.collect(::handleCurrenciesListResult)
+                if (showOnlyFavourites) {
+                    currenciesViewModel.favouriteCurrenciesResult.collect(::handleCurrenciesListResult)
+                } else {
+                    currenciesViewModel.currenciesListResult.collect(::handleCurrenciesListResult)
+                }
             }
         }
 
         viewLifecycleOwner.lifecycleScope.launch {
-            currenciesViewModel.favouriteCurrencyResult.collect(::handleFavouriteCurrencyResult)
+            currenciesViewModel.favouriteCurrencyChangeResult.collect(::handleFavouriteCurrencyResult)
         }
 
         binding.baseCurrencyText.setOnClickListener {
@@ -70,7 +76,11 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
                 .show(childFragmentManager, CurrenciesDialogFragment.DIALOG_TAG)
         }
 
-        currenciesViewModel.getLatestCurrencyRates(binding.baseCurrencyText.text.toString())
+        if (showOnlyFavourites) {
+            currenciesViewModel.getFavouriteCurrencies()
+        } else {
+            currenciesViewModel.getLatestCurrencyRates(binding.baseCurrencyText.text.toString())
+        }
     }
 
     private fun handleCurrenciesListResult(result: CurrenciesListResult) {
@@ -102,7 +112,9 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
                 currenciesAdapter.changeItemState(result.newItemUiState)
             }
             is FavouriteCurrencyResult.Error -> {
-                showDismissibleSnackbar(binding.root, result.errorId)
+                if (!result.error.isNullOrBlank()) {
+                    showDismissibleSnackbar(binding.root, result.error)
+                }
             }
         }
     }
@@ -119,7 +131,13 @@ class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickLis
 
     companion object {
 
+        const val ONLY_FAVOURITES = "OnlyFavouritesCurrencies"
+
         @JvmStatic
-        fun newInstance() = CurrenciesListFragment()
+        fun newInstance(showOnlyFavourites: Boolean = false) = CurrenciesListFragment().apply {
+            arguments = Bundle().apply {
+                putBoolean(ONLY_FAVOURITES, showOnlyFavourites)
+            }
+        }
     }
 }
