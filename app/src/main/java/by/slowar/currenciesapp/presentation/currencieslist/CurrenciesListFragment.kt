@@ -12,13 +12,14 @@ import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import by.slowar.currenciesapp.CurrenciesApp
 import by.slowar.currenciesapp.databinding.FragmentCurrenciesListBinding
+import by.slowar.currenciesapp.presentation.currencieslist.dialog.CurrenciesDialogFragment
 import by.slowar.currenciesapp.presentation.currencieslist.favourite.FavouriteCurrencyResult
 import by.slowar.currenciesapp.utils.ui.showDismissibleSnackbar
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-class CurrenciesListFragment : Fragment() {
+class CurrenciesListFragment : Fragment(), CurrenciesDialogFragment.ItemClickListener {
 
     private var _binding: FragmentCurrenciesListBinding? = null
     private val binding: FragmentCurrenciesListBinding
@@ -51,6 +52,7 @@ class CurrenciesListFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         currenciesAdapter = CurrenciesListAdapter()
+        binding.currenciesRecyclerView.setHasFixedSize(true)
         binding.currenciesRecyclerView.adapter = currenciesAdapter
 
         viewLifecycleOwner.lifecycleScope.launch {
@@ -63,7 +65,12 @@ class CurrenciesListFragment : Fragment() {
             currenciesViewModel.favouriteCurrencyResult.collect(::handleFavouriteCurrencyResult)
         }
 
-        currenciesViewModel.getLatestCurrencyRates("EUR")
+        binding.baseCurrencyText.setOnClickListener {
+            CurrenciesDialogFragment.newInstance()
+                .show(childFragmentManager, CurrenciesDialogFragment.DIALOG_TAG)
+        }
+
+        currenciesViewModel.getLatestCurrencyRates(binding.baseCurrencyText.text.toString())
     }
 
     private fun handleCurrenciesListResult(result: CurrenciesListResult) {
@@ -98,6 +105,11 @@ class CurrenciesListFragment : Fragment() {
                 showDismissibleSnackbar(binding.root, result.errorId)
             }
         }
+    }
+
+    override fun onCurrencyItemClick(symbol: String) {
+        binding.baseCurrencyText.text = symbol
+        currenciesViewModel.getLatestCurrencyRates(symbol)
     }
 
     override fun onDestroyView() {

@@ -6,6 +6,34 @@
     android:layout_height="match_parent"
     tools:context=".presentation.currencieslist.CurrenciesListFragment">
 
+    <TextView
+        android:id="@+id/baseCurrencyText"
+        style="@style/Theme.CurrenciesApp.TitleText"
+        android:layout_width="0dp"
+        android:layout_height="@dimen/currency_item_height"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:background="@drawable/base_currency_shape"
+        android:gravity="center_vertical"
+        android:padding="8dp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:text="EUR" />
+
+    <TextView
+        android:id="@+id/currenciesListTitle"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="8dp"
+        android:layout_marginEnd="8dp"
+        android:text="Currencies list"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/baseCurrencyText" />
+
     <androidx.swiperefreshlayout.widget.SwipeRefreshLayout
         android:id="@+id/swipeRefreshLayout"
         android:layout_width="0dp"
@@ -13,7 +41,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent">
+        app:layout_constraintTop_toBottomOf="@+id/currenciesListTitle">
 
         <androidx.recyclerview.widget.RecyclerView
             android:id="@+id/currenciesRecyclerView"
@@ -26,4 +54,5 @@
             app:layout_constraintTop_toTopOf="parent"
             tools:listitem="@layout/currency_item" />
     </androidx.swiperefreshlayout.widget.SwipeRefreshLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

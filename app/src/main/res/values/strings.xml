@@ -3,4 +3,8 @@
     <string name="favourites">Favourites</string>
     <string name="ok_word">Ok</string>
     <string name="favourite_error">Changing favourite currency state occurred!</string>
+    <string name="sort">Sort</string>
+    <string name="all">All</string>
+    <string name="choose_base_currency">Choose base currency</string>
+    <string name="dismiss">Dismiss</string>
 </resources>

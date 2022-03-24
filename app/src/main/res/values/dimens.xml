@@ -2,4 +2,6 @@
 <resources>
     <dimen name="currency_item_height">48dp</dimen>
     <dimen name="favourite_icon_size">48dp</dimen>
+    <dimen name="dialog_width">300dp</dimen>
+    <dimen name="dialog_height">450dp</dimen>
 </resources>
