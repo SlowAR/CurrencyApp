@@ -8,4 +8,8 @@
     <string name="choose_base_currency">Choose base currency</string>
     <string name="dismiss">Dismiss</string>
     <string name="currencies_list">Currencies list</string>
+    <string name="alphabetic">Alphabetic</string>
+    <string name="value">Value</string>
+    <string name="ascending">Ascending</string>
+    <string name="descending">Descending</string>
 </resources>
