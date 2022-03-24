@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/currenciesListItem"
+        android:icon="@drawable/ic_baseline_format_list_bulleted_24"
+        android:title="@string/all" />
+    <item
+        android:id="@+id/favouritesCurrenciesItem"
+        android:icon="@drawable/ic_baseline_star_rate_24"
+        android:title="@string/favourites" />
+</menu>
